@@ -1,16 +1,26 @@
 const choices = ["Rock", "Paper", "Scissors"];
 
+let playerScore = 0;
+let computerScore = 0;
+
+let result = document.getElementById("result");
+result.setAttribute("style", "white-space: pre;");
+
 function playRound(playerSelection, computerSelection) {
   if (playerSelection === computerSelection) {
-    return `It's a DRAW! You both played ${computerSelection}.`;
+    playerScore += 0.5;
+    computerScore += 0.5;
+    result.textContent = `It's a DRAW! You both played ${computerSelection}.`;
   } else if (
     (playerSelection === "Rock" && computerSelection === "Paper") ||
     (playerSelection === "Paper" && computerSelection === "Scissors") ||
     (playerSelection === "Scissors" && computerSelection === "Rock")
   ) {
-    return `You LOSE! ${computerSelection} beats ${playerSelection}`;
+    computerScore++;
+    result.textContent = `You LOSE! ${computerSelection} beats ${playerSelection}`;
   } else {
-    return `You WIN! ${playerSelection} beats ${computerSelection}`;
+    playerScore++;
+    result.textContent = `You WIN! ${playerSelection} beats ${computerSelection}`;
   }
 }
 
@@ -18,63 +28,35 @@ function getComputerChoice() {
   return choices[Math.floor(Math.random() * 3)];
 }
 
-function game() {
-  let playerScore = 0;
-  let computerScore = 0;
+function checkScores() {
+  if (playerScore >= 5 || computerScore >= 5) {
+    let score = `FINAL SCORE:\n\tYou:\t\t${playerScore}\n\tComputer:\t${computerScore}\n`;
 
-  for (let i = 0; i < 5; i++) {
-    let playerSelection;
-    let failedAttempts = 0;
-
-    while (true) {
-      playerSelection = prompt("What's your move?");
-      if (!playerSelection) {
-        failedAttempts++;
-        if (failedAttempts === 5) {
-          console.log("Something went wrong!");
-          return;
-        }
-        console.log("Please make a move.");
-        continue;
-      }
-      playerSelection =
-        playerSelection.charAt(0).toUpperCase() +
-        playerSelection.slice(1).toLowerCase();
-
-      if (choices.includes(playerSelection)) {
-        break;
-      } else {
-        console.log("That's not a valid move!");
-      }
-    }
-
-    const computerSelection = getComputerChoice();
-
-    let result = playRound(playerSelection, computerSelection);
-
-    if (result.includes("DRAW")) {
-      playerScore += 0.5;
-      computerScore += 0.5;
-    } else if (result.includes("LOSE")) {
-      computerScore++;
+    if (playerScore === computerScore) {
+      result.textContent = score + "The game is DRAWN!";
+    } else if (playerScore < computerScore) {
+      result.textContent = score + "You LOST the game!";
     } else {
-      playerScore++;
+      result.textContent = score + "You WON the game!";
     }
 
-    console.log(result);
-  }
-
-  console.log(`FINAL SCORE:
-  You:      ${playerScore}
-  Computer: ${computerScore}
-  `);
-  if (playerScore === computerScore) {
-    console.log("The game is DRAWN!");
-  } else if (playerScore < computerScore) {
-    console.log("You LOST the game!");
-  } else {
-    console.log("You WON the game!");
+    playerScore = computerScore = 0;
   }
 }
 
-game();
+let rock = document.getElementById("rock");
+let paper = document.getElementById("paper");
+let scissors = document.getElementById("scissors");
+
+rock.addEventListener("click", () => {
+  playRound("Rock", getComputerChoice());
+  checkScores();
+});
+paper.addEventListener("click", () => {
+  playRound("Paper", getComputerChoice());
+  checkScores();
+});
+scissors.addEventListener("click", () => {
+  playRound("Scissors", getComputerChoice());
+  checkScores();
+});
